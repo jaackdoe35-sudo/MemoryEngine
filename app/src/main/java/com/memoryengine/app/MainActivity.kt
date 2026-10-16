@@ -23,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
 import com.memoryengine.app.ui.screens.DashboardScreen
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
@@ -65,7 +66,13 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     MainAppScreen(windowSizeClass = windowSizeClass)
+                    DashboardScreen()
                 }
+            }
+        }
+    }
+}
+                MainAppScreen()
             }
         }
     }
@@ -102,6 +109,7 @@ fun MainAppScreen(
         ) {
             when (currentTab) {
                 NavigationTab.INGEST -> IngestScreen()
+                NavigationTab.INGEST -> IngestPlaceholderScreen()
                 NavigationTab.TODAY -> TodayScreen(
                     state = initialState,
                     onStartReview = {},
@@ -115,9 +123,73 @@ fun MainAppScreen(
                     onToggleHelpSheet = {},
                     windowWidthSizeClass = windowSizeClass?.widthSizeClass
                 )
+                NavigationTab.LIBRARY -> LibraryPlaceholderScreen()
             }
         }
     }
+}
+
+@Composable
+fun BottomNavigationBar(
+    selectedTab: NavigationTab,
+    onTabSelected: (NavigationTab) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .border(
+                width = Spacing.cardBorderWidth,
+                color = MaterialTheme.colorScheme.outline
+            ),
+        color = MaterialTheme.colorScheme.surface
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = Spacing.sm, horizontal = Spacing.md),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            NavigationTab.entries.forEach { tab ->
+                val isSelected = tab == selectedTab
+                val contentColor = if (isSelected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                }
+
+                Box(
+                    modifier = Modifier
+                        .pressScaleEffect { onTabSelected(tab) }
+                        .padding(horizontal = Spacing.md, vertical = Spacing.xs),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = tab.icon,
+                            contentDescription = tab.label,
+                            tint = contentColor,
+                            modifier = Modifier.size(Spacing.iconSizeMedium)
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = tab.label,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = contentColor,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 }
 
 @Composable
