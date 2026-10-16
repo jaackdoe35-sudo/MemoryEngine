@@ -310,6 +310,10 @@ fun IngestScreen(
                                     onTextSubmit(rawText)
                                 }
                             }
+                        StatusBanner(
+                            title = "Ingestion Failed",
+                            message = uiState.message,
+                            isError = true
                         )
                     }
                 }
