@@ -77,6 +77,10 @@ dependencies {
     // PdfBox
     implementation("com.tom-roush:pdfbox-android:2.0.27.0")
 
+    // WorkManager
+    val workVersion = "2.9.0"
+    implementation("androidx.work:work-runtime-ktx:$workVersion")
+
     // Retrofit
     val retrofitVersion = "2.9.0"
     implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
@@ -88,6 +92,10 @@ dependencies {
     testImplementation("androidx.test.ext:junit:1.1.5")
     testImplementation("androidx.test:core:1.5.0")
     testImplementation("androidx.compose.ui:ui-test-junit4")
+    testImplementation("androidx.work:work-testing:$workVersion")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    testImplementation("org.mockito:mockito-core:5.11.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
     testImplementation("io.github.takahirom.roborazzi:roborazzi:1.12.0")
     testImplementation("io.github.takahirom.roborazzi:roborazzi-compose:1.12.0")
     testImplementation("io.github.takahirom.roborazzi:roborazzi-junit-rule:1.12.0")
