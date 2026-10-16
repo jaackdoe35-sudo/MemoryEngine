@@ -1,6 +1,7 @@
 pluginManagement {
     repositories {
         google()
+        maven("https://maven-central.storage-download.googleapis.com/maven2")
         maven { url = uri("https://maven-central.storage-download.googleapis.com/maven2/") }
         mavenCentral()
         maven("https://maven-central.storage-download.googleapis.com/maven2")
