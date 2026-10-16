@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -36,6 +37,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import com.memoryengine.app.data.local.entity.Document
 import com.memoryengine.app.data.local.entity.MemoryChunk
@@ -52,6 +55,14 @@ fun LibraryScreen(
     onSelectDocument: (DocumentUiItem) -> Unit,
     onBackFromDrilldown: () -> Unit,
     onToggleHelpSheet: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    windowWidthSizeClass: WindowWidthSizeClass? = null
+) {
+    val configuration = LocalConfiguration.current
+    val isTablet = windowWidthSizeClass == WindowWidthSizeClass.Medium ||
+            windowWidthSizeClass == WindowWidthSizeClass.Expanded ||
+            configuration.screenWidthDp >= 600
+
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -63,6 +74,85 @@ fun LibraryScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
+            if (isTablet) {
+                // Two-Pane Tablet Layout
+                Row(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    // Left Pane: Document List
+                    Box(
+                        modifier = Modifier
+                            .weight(0.4f)
+                            .fillMaxHeight()
+                    ) {
+                        DocumentListView(
+                            documents = uiState.documents,
+                            onSelectDocument = onSelectDocument,
+                            onHelpClick = { onToggleHelpSheet(true) }
+                        )
+                    }
+
+                    // Divider
+                    Box(
+                        modifier = Modifier
+                            .width(1.dp)
+                            .fillMaxHeight()
+                            .background(MaterialTheme.colorScheme.outline)
+                    )
+
+                    // Right Pane: Selected Document Detail / Drilldown
+                    Box(
+                        modifier = Modifier
+                            .weight(0.6f)
+                            .fillMaxHeight()
+                    ) {
+                        if (uiState.selectedDocument != null) {
+                            DocumentDrilldownView(
+                                documentItem = uiState.selectedDocument,
+                                chunks = uiState.selectedDocumentChunks,
+                                onBackClick = onBackFromDrilldown,
+                                onHelpClick = { onToggleHelpSheet(true) }
+                            )
+                        } else {
+                            // Tablet Detail Empty State
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Description,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(64.dp)
+                                    )
+                                    Spacer(modifier = Modifier.height(Spacing.md))
+                                    Text(
+                                        text = "Select a document to inspect chunks & prompts",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Single Pane Mobile Layout
+                if (uiState.selectedDocument != null) {
+                    DocumentDrilldownView(
+                        documentItem = uiState.selectedDocument,
+                        chunks = uiState.selectedDocumentChunks,
+                        onBackClick = onBackFromDrilldown,
+                        onHelpClick = { onToggleHelpSheet(true) }
+                    )
+                } else {
+                    DocumentListView(
+                        documents = uiState.documents,
+                        onSelectDocument = onSelectDocument,
+                        onHelpClick = { onToggleHelpSheet(true) }
+                    )
+                }
             if (uiState.selectedDocument != null) {
                 DocumentDrilldownView(
                     documentItem = uiState.selectedDocument,

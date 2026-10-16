@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.memoryengine.app.ui.components.ContextualHelpBottomSheet
 import com.memoryengine.app.ui.components.ContextualHelpIcon
+import com.memoryengine.app.ui.components.ErrorState
 import com.memoryengine.app.ui.components.pressScaleEffect
 import com.memoryengine.app.ui.theme.Spacing
 
@@ -301,6 +302,14 @@ fun IngestScreen(
 
                     if (uiState is IngestUiState.Error) {
                         Spacer(modifier = Modifier.height(Spacing.md))
+                        ErrorState(
+                            title = "Ingestion Failed",
+                            message = uiState.message,
+                            onRetry = {
+                                if (rawText.isNotBlank()) {
+                                    onTextSubmit(rawText)
+                                }
+                            }
                         StatusBanner(
                             title = "Ingestion Failed",
                             message = uiState.message,

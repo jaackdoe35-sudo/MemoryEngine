@@ -26,6 +26,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.memoryengine.app.ui.screens.DashboardScreen
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,14 +52,17 @@ enum class NavigationTab(val label: String, val icon: ImageVector) {
 }
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val windowSizeClass = calculateWindowSizeClass(this)
             MemoryEngineTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    MainAppScreen(windowSizeClass = windowSizeClass)
                     DashboardScreen()
                 }
             }
@@ -71,6 +77,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainAppScreen(
+    windowSizeClass: WindowSizeClass? = null,
     initialTab: NavigationTab = NavigationTab.TODAY,
     initialState: TodayUiState = TodayUiState(
         duePromptsCount = 5,
@@ -109,6 +116,69 @@ fun MainAppScreen(
             }
         }
     }
+}
+
+@Composable
+fun BottomNavigationBar(
+    selectedTab: NavigationTab,
+    onTabSelected: (NavigationTab) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .border(
+                width = Spacing.cardBorderWidth,
+                color = MaterialTheme.colorScheme.outline
+            ),
+        color = MaterialTheme.colorScheme.surface
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = Spacing.sm, horizontal = Spacing.md),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            NavigationTab.entries.forEach { tab ->
+                val isSelected = tab == selectedTab
+                val contentColor = if (isSelected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                }
+
+                Box(
+                    modifier = Modifier
+                        .pressScaleEffect { onTabSelected(tab) }
+                        .padding(horizontal = Spacing.md, vertical = Spacing.xs),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = tab.icon,
+                            contentDescription = tab.label,
+                            tint = contentColor,
+                            modifier = Modifier.size(Spacing.iconSizeMedium)
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = tab.label,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = contentColor,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 }
 
 @Composable
