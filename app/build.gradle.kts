@@ -50,6 +50,8 @@ android {
             all {
                 it.systemProperty("robolectric.dependency.repo.url", "https://maven-central.storage-download.googleapis.com/maven2")
                 it.systemProperty("robolectric.dependency.repo.id", "central")
+                it.systemProperty("robolectric.dependency.repo.id", "google-maven-central")
+                it.systemProperty("robolectric.dependency.repo.url", "https://maven-central.storage-download.googleapis.com/maven2")
             }
         }
     }
