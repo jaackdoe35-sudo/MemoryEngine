@@ -10,44 +10,48 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 
 private val LightColorScheme = lightColorScheme(
-    primary = DeepGreen,
-    onPrimary = PaperBase,
-    primaryContainer = DeepGreenLight,
-    onPrimaryContainer = DeepGreen,
-    secondary = EditorialMuted,
-    onSecondary = PaperBase,
-    background = PaperBase,
-    onBackground = CharcoalText,
-    surface = PaperSurface,
-    onSurface = CharcoalText,
-    surfaceVariant = PaperSurfaceVariant,
-    onSurfaceVariant = EditorialMuted,
-    outline = EditorialBorder,
-    outlineVariant = EditorialBorder
+    primary = LightPrimary,
+    onPrimary = LightOnPrimary,
+    primaryContainer = LightPrimaryContainer,
+    onPrimaryContainer = LightOnPrimaryContainer,
+    secondary = LightSecondary,
+    tertiary = LightTertiary,
+    background = LightBackground,
+    surface = LightSurface,
+    surfaceContainerLow = LightSurfaceContainerLow,
+    surfaceContainer = LightSurfaceContainer,
+    surfaceContainerHigh = LightSurfaceContainerHigh,
+    onSurface = LightOnSurface,
+    onSurfaceVariant = LightOnSurfaceVariant,
+    outline = LightOutline,
+    error = LightError,
+    errorContainer = LightErrorContainer
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = DarkGreen,
-    onPrimary = DarkPaperBase,
-    primaryContainer = DarkGreenContainer,
-    onPrimaryContainer = DarkOnGreenContainer,
-    secondary = DarkEditorialMuted,
-    onSecondary = DarkPaperBase,
-    background = DarkPaperBase,
-    onBackground = DarkCharcoalText,
-    surface = DarkPaperSurface,
-    onSurface = DarkCharcoalText,
-    surfaceVariant = DarkPaperSurfaceVariant,
-    onSurfaceVariant = DarkEditorialMuted,
-    outline = DarkEditorialBorder,
-    outlineVariant = DarkEditorialBorder
+    primary = DarkPrimary,
+    onPrimary = DarkOnPrimary,
+    primaryContainer = DarkPrimaryContainer,
+    onPrimaryContainer = DarkOnPrimaryContainer,
+    secondary = DarkSecondary,
+    tertiary = DarkTertiary,
+    background = DarkBackground,
+    surface = DarkSurface,
+    surfaceContainerLow = DarkSurfaceContainerLow,
+    surfaceContainer = DarkSurfaceContainer,
+    surfaceContainerHigh = DarkSurfaceContainerHigh,
+    onSurface = DarkOnSurface,
+    onSurfaceVariant = DarkOnSurfaceVariant,
+    outline = DarkOutline,
+    error = DarkError,
+    errorContainer = DarkErrorContainer
 )
 
 private val AppShapes = Shapes(
-    small = RoundedCornerShape(8.dp),
-    medium = RoundedCornerShape(12.dp),
-    large = RoundedCornerShape(16.dp),
-    extraLarge = RoundedCornerShape(24.dp)
+    small = RoundedCornerShape(Spacing.textFieldRadius),
+    medium = RoundedCornerShape(Spacing.cardRadius),
+    large = RoundedCornerShape(Spacing.cardRadius),
+    extraLarge = RoundedCornerShape(Spacing.cardRadius)
 )
 
 @Composable

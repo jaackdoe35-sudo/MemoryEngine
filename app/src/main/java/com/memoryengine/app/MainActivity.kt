@@ -3,28 +3,12 @@ package com.memoryengine.app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.FolderOpen
-import androidx.compose.material.icons.outlined.PostAdd
-import androidx.compose.material.icons.outlined.Today
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import com.memoryengine.app.ui.screens.DashboardScreen
-import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
@@ -33,25 +17,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import com.memoryengine.app.ui.components.pressScaleEffect
-import com.memoryengine.app.ui.theme.MemoryEngineTheme
-import com.memoryengine.app.ui.ingest.IngestScreen
+import com.memoryengine.app.domain.scheduler.Rating
+import com.memoryengine.app.ui.components.AppNavigationBar
+import com.memoryengine.app.ui.components.NavigationTab
 import com.memoryengine.app.ui.library.LibraryScreen
 import com.memoryengine.app.ui.library.LibraryUiState
-import com.memoryengine.app.ui.theme.Spacing
+import com.memoryengine.app.ui.palace.MemoryPalaceUiState
+import com.memoryengine.app.ui.palace.PalaceScreen
+import com.memoryengine.app.ui.screens.RecallScreen
+import com.memoryengine.app.ui.screens.RecallUiState
+import com.memoryengine.app.ui.theme.MemoryEngineTheme
 import com.memoryengine.app.ui.today.TodayScreen
 import com.memoryengine.app.ui.today.TodayUiState
-
-enum class NavigationTab(val label: String, val icon: ImageVector) {
-    INGEST("Ingest", Icons.Outlined.PostAdd),
-    TODAY("Today", Icons.Outlined.Today),
-    LIBRARY("Library", Icons.Outlined.FolderOpen)
-}
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -75,7 +53,7 @@ class MainActivity : ComponentActivity() {
 fun MainAppScreen(
     windowSizeClass: WindowSizeClass? = null,
     initialTab: NavigationTab = NavigationTab.TODAY,
-    initialState: TodayUiState = TodayUiState(
+    initialTodayState: TodayUiState = TodayUiState(
         duePromptsCount = 5,
         totalPromptsCount = 18,
         completedTodayCount = 2,
@@ -85,12 +63,24 @@ fun MainAppScreen(
     )
 ) {
     var currentTab by remember { mutableStateOf(initialTab) }
+    var recallState by remember {
+        mutableStateOf(
+            RecallUiState(
+                currentCardIndex = 1,
+                totalCards = 5,
+                question = "What is active recall?",
+                answer = "A learning technique where the mind actively stimulates memory retrieval.",
+                association = "Picture a glowing lightbulb flashing in your brain as you open a memory vault.",
+                isAnswerRevealed = false
+            )
+        )
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            BottomNavigationBar(
-                selectedTab = currentTab,
+            AppNavigationBar(
+                currentTab = currentTab,
                 onTabSelected = { currentTab = it }
             )
         }
@@ -101,12 +91,33 @@ fun MainAppScreen(
                 .padding(innerPadding)
         ) {
             when (currentTab) {
-                NavigationTab.INGEST -> IngestScreen()
                 NavigationTab.TODAY -> TodayScreen(
-                    state = initialState,
-                    onStartReview = {},
-                    onContinueIngest = { currentTab = NavigationTab.INGEST },
-                    onAddFact = { currentTab = NavigationTab.INGEST }
+                    state = initialTodayState,
+                    onStartReview = { currentTab = NavigationTab.RECALL },
+                    onContinueIngest = { currentTab = NavigationTab.LIBRARY },
+                    onAddFact = { currentTab = NavigationTab.LIBRARY }
+                )
+                NavigationTab.PALACE -> PalaceScreen(
+                    state = MemoryPalaceUiState(),
+                    onSelectChunk = {},
+                    onCreateAssociation = {}
+                )
+                NavigationTab.RECALL -> RecallScreen(
+                    uiState = recallState,
+                    onRevealAnswer = {
+                        recallState = recallState.copy(isAnswerRevealed = true)
+                    },
+                    onRatingSelected = { rating ->
+                        if (recallState.currentCardIndex < recallState.totalCards) {
+                            recallState = recallState.copy(
+                                currentCardIndex = recallState.currentCardIndex + 1,
+                                isAnswerRevealed = false
+                            )
+                        } else {
+                            currentTab = NavigationTab.TODAY
+                        }
+                    },
+                    onBackToToday = { currentTab = NavigationTab.TODAY }
                 )
                 NavigationTab.LIBRARY -> LibraryScreen(
                     uiState = LibraryUiState(),
@@ -116,125 +127,6 @@ fun MainAppScreen(
                     windowWidthSizeClass = windowSizeClass?.widthSizeClass
                 )
             }
-        }
-    }
-}
-
-@Composable
-fun BottomNavigationBar(
-    selectedTab: NavigationTab,
-    onTabSelected: (NavigationTab) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .border(
-                width = Spacing.cardBorderWidth,
-                color = MaterialTheme.colorScheme.outline
-            ),
-        color = MaterialTheme.colorScheme.surface
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = Spacing.sm, horizontal = Spacing.md),
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            NavigationTab.entries.forEach { tab ->
-                val isSelected = tab == selectedTab
-                val contentColor = if (isSelected) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                }
-
-                Box(
-                    modifier = Modifier
-                        .pressScaleEffect { onTabSelected(tab) }
-                        .padding(horizontal = Spacing.md, vertical = Spacing.xs),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Icon(
-                            imageVector = tab.icon,
-                            contentDescription = tab.label,
-                            tint = contentColor,
-                            modifier = Modifier.size(Spacing.iconSizeMedium)
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = tab.label,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = contentColor,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-
-@Composable
-fun IngestPlaceholderScreen() {
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(Spacing.lg),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.PostAdd,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(Spacing.iconSizeLarge)
-            )
-            Spacer(modifier = Modifier.height(Spacing.md))
-            Text(
-                text = "Ingest Knowledge",
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        }
-    }
-}
-
-@Composable
-fun LibraryPlaceholderScreen() {
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(Spacing.lg),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.FolderOpen,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(Spacing.iconSizeLarge)
-            )
-            Spacer(modifier = Modifier.height(Spacing.md))
-            Text(
-                text = "Document Library",
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onBackground
-            )
         }
     }
 }

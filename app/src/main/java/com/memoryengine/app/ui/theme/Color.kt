@@ -2,34 +2,38 @@ package com.memoryengine.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Light Mode: Warm paper tones
-val PaperBase = Color(0xFFFAF8F5)
-val PaperSurface = Color(0xFFF3EFEA)
-val PaperSurfaceVariant = Color(0xFFE9E4DC)
+// Light Palette
+val LightPrimary = Color(0xFF087E8B)
+val LightOnPrimary = Color(0xFFFFFFFF)
+val LightPrimaryContainer = Color(0xFFC5F1F1)
+val LightOnPrimaryContainer = Color(0xFF00363C)
+val LightSecondary = Color(0xFF426777)
+val LightTertiary = Color(0xFF5269A5)
+val LightBackground = Color(0xFFF2F6FA)
+val LightSurface = Color(0xFFFFFFFF)
+val LightSurfaceContainerLow = Color(0xFFEAF0F6)
+val LightSurfaceContainer = Color(0xFFE3EBF4)
+val LightSurfaceContainerHigh = Color(0xFFD8E3EF)
+val LightOnSurface = Color(0xFF142B46)
+val LightOnSurfaceVariant = Color(0xFF52677F)
+val LightOutline = Color(0xFF71859B)
+val LightError = Color(0xFFBA1A1A)
+val LightErrorContainer = Color(0xFFFCE8E6)
 
-// Light Mode: Deep green accent
-val DeepGreen = Color(0xFF1B3B2B)
-val DeepGreenHover = Color(0xFF142E21)
-val DeepGreenLight = Color(0xFFE3EFE9)
-
-// Editorial Muted Tones (Light)
-val CharcoalText = Color(0xFF1C1C1E)
-val EditorialMuted = Color(0xFF636366)
-val EditorialBorder = Color(0xFFDCD6CD)
-
-// Functional colors aligned with theme
-val AccentWarmOrange = Color(0xFFC85A32)
-val AccentSage = Color(0xFF4A7C59)
-
-// Dark Mode Tones
-val DarkPaperBase = Color(0xFF121312)
-val DarkPaperSurface = Color(0xFF1B1D1B)
-val DarkPaperSurfaceVariant = Color(0xFF262926)
-
-val DarkGreen = Color(0xFF4C8265)
-val DarkGreenContainer = Color(0xFF1E3328)
-val DarkOnGreenContainer = Color(0xFFBBE3CE)
-
-val DarkCharcoalText = Color(0xFFEDE9E3)
-val DarkEditorialMuted = Color(0xFF9E9E9E)
-val DarkEditorialBorder = Color(0xFF2E332E)
+// Dark Palette
+val DarkPrimary = Color(0xFF55D6D0)
+val DarkOnPrimary = Color(0xFF08252F)
+val DarkPrimaryContainer = Color(0xFF164B58)
+val DarkOnPrimaryContainer = Color(0xFFC5F1F1)
+val DarkSecondary = Color(0xFFA5CAD8)
+val DarkTertiary = Color(0xFFBAC8FF)
+val DarkBackground = Color(0xFF081321)
+val DarkSurface = Color(0xFF0D1B2A)
+val DarkSurfaceContainerLow = Color(0xFF112135)
+val DarkSurfaceContainer = Color(0xFF16273C)
+val DarkSurfaceContainerHigh = Color(0xFF20334A)
+val DarkOnSurface = Color(0xFFF0F6FC)
+val DarkOnSurfaceVariant = Color(0xFFB0C1D4)
+val DarkOutline = Color(0xFF7F94AA)
+val DarkError = Color(0xFFFFB4AB)
+val DarkErrorContainer = Color(0xFF5C2424)
