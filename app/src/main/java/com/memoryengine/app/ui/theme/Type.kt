@@ -6,80 +6,65 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Using Serif for Newsreader fallback/feeling and SansSerif for Inter fallback/feeling
-val NewsreaderFontFamily = FontFamily.Serif
-val InterFontFamily = FontFamily.SansSerif
-
 val Typography = Typography(
     displayLarge = TextStyle(
-        fontFamily = NewsreaderFontFamily,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
-        fontSize = 36.sp,
-        lineHeight = 44.sp,
-        letterSpacing = (-0.5).sp,
-        color = CharcoalText
-    ),
-    displayMedium = TextStyle(
-        fontFamily = NewsreaderFontFamily,
-        fontWeight = FontWeight.Normal,
-        fontSize = 28.sp,
-        lineHeight = 36.sp,
-        color = CharcoalText
+        fontSize = 32.sp,
+        lineHeight = 40.sp
     ),
     headlineLarge = TextStyle(
-        fontFamily = NewsreaderFontFamily,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
-        fontSize = 24.sp,
-        lineHeight = 32.sp,
-        color = CharcoalText
+        fontSize = 28.sp,
+        lineHeight = 36.sp
     ),
     headlineMedium = TextStyle(
-        fontFamily = NewsreaderFontFamily,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
-        fontSize = 20.sp,
-        lineHeight = 28.sp,
-        color = CharcoalText
+        fontSize = 24.sp,
+        lineHeight = 32.sp
     ),
     titleLarge = TextStyle(
-        fontFamily = InterFontFamily,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 18.sp,
-        lineHeight = 24.sp,
-        color = CharcoalText
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Medium,
+        fontSize = 22.sp,
+        lineHeight = 28.sp
     ),
     titleMedium = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp,
-        lineHeight = 22.sp,
-        color = CharcoalText
+        lineHeight = 24.sp
     ),
     bodyLarge = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
-        lineHeight = 24.sp,
-        color = CharcoalText
+        lineHeight = 24.sp
     ),
     bodyMedium = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
-        lineHeight = 20.sp,
-        color = EditorialMuted
+        lineHeight = 20.sp
     ),
     labelLarge = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
         fontSize = 14.sp,
-        lineHeight = 20.sp,
-        color = DeepGreen
+        lineHeight = 20.sp
+    ),
+    labelMedium = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Medium,
+        fontSize = 12.sp,
+        lineHeight = 16.sp
     ),
     labelSmall = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
         fontSize = 11.sp,
-        lineHeight = 16.sp,
-        color = EditorialMuted
+        lineHeight = 16.sp
     )
 )
