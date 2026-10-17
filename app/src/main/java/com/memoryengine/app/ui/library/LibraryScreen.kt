@@ -63,8 +63,6 @@ fun LibraryScreen(
             windowWidthSizeClass == WindowWidthSizeClass.Expanded ||
             configuration.screenWidthDp >= 600
 
-    modifier: Modifier = Modifier
-) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background
@@ -153,19 +151,6 @@ fun LibraryScreen(
                         onHelpClick = { onToggleHelpSheet(true) }
                     )
                 }
-            if (uiState.selectedDocument != null) {
-                DocumentDrilldownView(
-                    documentItem = uiState.selectedDocument,
-                    chunks = uiState.selectedDocumentChunks,
-                    onBackClick = onBackFromDrilldown,
-                    onHelpClick = { onToggleHelpSheet(true) }
-                )
-            } else {
-                DocumentListView(
-                    documents = uiState.documents,
-                    onSelectDocument = onSelectDocument,
-                    onHelpClick = { onToggleHelpSheet(true) }
-                )
             }
 
             if (uiState.showHelpSheet) {
