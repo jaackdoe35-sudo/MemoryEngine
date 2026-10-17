@@ -1,11 +1,6 @@
 package com.memoryengine.app.ui.today
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,20 +8,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Description
-import androidx.compose.material.icons.outlined.LocalFireDepartment
 import androidx.compose.material.icons.outlined.Psychology
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -39,13 +27,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.memoryengine.app.ui.components.AppCard
 import com.memoryengine.app.ui.components.ContextualHelpBottomSheet
 import com.memoryengine.app.ui.components.ContextualHelpIcon
-import com.memoryengine.app.ui.components.pressScaleEffect
+import com.memoryengine.app.ui.components.EmptyState
+import com.memoryengine.app.ui.components.PrimaryButton
+import com.memoryengine.app.ui.components.StatusChip
 import com.memoryengine.app.ui.theme.Spacing
 
 data class TodayUiState(
@@ -77,8 +65,8 @@ fun TodayScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(Spacing.md),
-            verticalArrangement = Arrangement.spacedBy(Spacing.md)
+                .padding(Spacing.screenPadding),
+            verticalArrangement = Arrangement.spacedBy(Spacing.standard)
         ) {
             // Header: Title & Streak Badge
             TodayHeader(streakDays = state.streakDays)
@@ -91,9 +79,14 @@ fun TodayScreen(
 
             // Conditional Dashboard Content based on State
             when {
-                // Empty state (New User)
+                // Empty state (New User / No database items)
                 state.totalPromptsCount == 0 && state.unfinishedDocumentsCount == 0 -> {
-                    EmptyStateCard(onAddFact = onAddFact)
+                    EmptyState(
+                        title = "Engine Ready",
+                        message = "No facts or documents in database. Ingest memory items or create a new prompt to get started.",
+                        actionLabel = "Add First Fact",
+                        onActionClick = onAddFact
+                    )
                 }
 
                 else -> {
@@ -138,44 +131,18 @@ private fun TodayHeader(streakDays: Int) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column {
-            Text(
-                text = "Today",
-                style = MaterialTheme.typography.displayMedium,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        }
+        Text(
+            text = "Today",
+            style = MaterialTheme.typography.displayLarge,
+            color = MaterialTheme.colorScheme.onBackground
+        )
 
-        // Streak Badge
-        Box(
-            modifier = Modifier
-                .clip(MaterialTheme.shapes.small)
-                .background(MaterialTheme.colorScheme.surface)
-                .border(
-                    width = Spacing.cardBorderWidth,
-                    color = MaterialTheme.colorScheme.outline,
-                    shape = MaterialTheme.shapes.small
-                )
-                .padding(horizontal = Spacing.sm, vertical = Spacing.xs)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Spacing.xs)
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.LocalFireDepartment,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(Spacing.iconSizeSmall)
-                )
-                Text(
-                    text = "$streakDays DAY STREAK",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
+        StatusChip(
+            text = "$streakDays DAY STREAK",
+            symbol = "🔥",
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        )
     }
 }
 
@@ -184,167 +151,48 @@ private fun FocusScoreCard(
     focusScore: Int,
     onHelpClick: () -> Unit
 ) {
-    val animatedProgress by animateFloatAsState(
-        targetValue = focusScore / 100f,
-        animationSpec = tween(durationMillis = 800),
-        label = "focusScoreAnimation"
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.large)
-            .background(MaterialTheme.colorScheme.surface)
-            .border(
-                width = Spacing.cardBorderWidth,
-                color = MaterialTheme.colorScheme.outline,
-                shape = MaterialTheme.shapes.large
-            )
-            .padding(Spacing.md)
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(Spacing.standard),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.xs)
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.compact)
                 ) {
                     Text(
                         text = "FOCUS SCORE",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     ContextualHelpIcon(
                         onClick = onHelpClick,
-                        size = 22.dp
+                        size = 20.dp
                     )
                 }
 
-                Spacer(modifier = Modifier.height(Spacing.xs))
+                Spacer(modifier = Modifier.height(Spacing.compact))
 
                 Text(
                     text = "$focusScore%",
                     style = MaterialTheme.typography.displayLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
 
-            // Progress Ring
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.size(64.dp)
-            ) {
-                CircularProgressIndicator(
-                    progress = { 1f },
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    strokeWidth = 6.dp,
-                    strokeCap = StrokeCap.Round
-                )
-                CircularProgressIndicator(
-                    progress = { animatedProgress },
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = 6.dp,
-                    strokeCap = StrokeCap.Round
-                )
-                Icon(
-                    imageVector = Icons.Outlined.Psychology,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(Spacing.iconSizeMedium)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun EmptyStateCard(
-    onAddFact: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.large)
-            .background(MaterialTheme.colorScheme.surface)
-            .border(
-                width = Spacing.cardBorderWidth,
-                color = MaterialTheme.colorScheme.outline,
-                shape = MaterialTheme.shapes.large
+            Icon(
+                imageVector = Icons.Outlined.Psychology,
+                contentDescription = "Focus Score Icon",
+                modifier = Modifier.padding(Spacing.compact),
+                tint = MaterialTheme.colorScheme.primary
             )
-            .padding(Spacing.lg)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.AutoAwesome,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(Spacing.iconSizeLarge)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(Spacing.md))
-
-            Text(
-                text = "0 FACTS INGESTED",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Spacer(modifier = Modifier.height(Spacing.xs))
-
-            Text(
-                text = "Engine Ready",
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            Spacer(modifier = Modifier.height(Spacing.lg))
-
-            // Primary Add Button with press scale effect
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.primary)
-                    .pressScaleEffect(onClick = onAddFact)
-                    .padding(vertical = Spacing.md),
-                contentAlignment = Alignment.Center
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Add,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(Spacing.iconSizeSmall)
-                    )
-                    Text(
-                        text = "Add your first fact",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
-            }
         }
     }
 }
@@ -355,108 +203,43 @@ private fun ReviewSessionCard(
     completedTodayCount: Int,
     onStartReview: () -> Unit
 ) {
-    val totalSession = dueCount + completedTodayCount
-    val progressRatio = if (totalSession > 0) completedTodayCount.toFloat() / totalSession else 0f
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.large)
-            .background(MaterialTheme.colorScheme.primaryContainer)
-            .border(
-                width = Spacing.cardBorderWidth,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
-                shape = MaterialTheme.shapes.large
-            )
-            .padding(Spacing.lg)
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        borderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
     ) {
-        Column {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "REVIEW SESSION",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
+        Column(modifier = Modifier.padding(Spacing.standard)) {
+            Text(
+                text = "REVIEW QUEUE",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
 
-                    Spacer(modifier = Modifier.height(Spacing.xs))
+            Spacer(modifier = Modifier.height(Spacing.compact))
 
-                    Text(
-                        text = "$dueCount",
-                        style = MaterialTheme.typography.displayLarge,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        fontWeight = FontWeight.Bold
-                    )
+            Text(
+                text = "$dueCount Items Ready for Review",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
 
-                    Text(
-                        text = if (dueCount == 1) "PROMPT DUE" else "PROMPTS DUE",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-
-                // Progress Ring Visual
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.size(72.dp)
-                ) {
-                    CircularProgressIndicator(
-                        progress = { 1f },
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.surface,
-                        strokeWidth = 7.dp,
-                        strokeCap = StrokeCap.Round
-                    )
-                    CircularProgressIndicator(
-                        progress = { progressRatio },
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.primary,
-                        strokeWidth = 7.dp,
-                        strokeCap = StrokeCap.Round
-                    )
-                    Text(
-                        text = "$dueCount",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+            if (completedTodayCount > 0) {
+                Spacer(modifier = Modifier.height(Spacing.base))
+                Text(
+                    text = "$completedTodayCount completed today",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                )
             }
 
-            Spacer(modifier = Modifier.height(Spacing.lg))
+            Spacer(modifier = Modifier.height(Spacing.standard))
 
-            // Start Review Button
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.primary)
-                    .pressScaleEffect(onClick = onStartReview)
-                    .padding(vertical = Spacing.md),
-                contentAlignment = Alignment.Center
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
-                ) {
-                    Text(
-                        text = "Start Review Session",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(Spacing.iconSizeSmall)
-                    )
-                }
-            }
+            PrimaryButton(
+                text = "Start Review Queue",
+                onClick = onStartReview,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
         }
     }
 }
@@ -465,49 +248,32 @@ private fun ReviewSessionCard(
 private fun AllCaughtUpCard(
     totalCount: Int
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.large)
-            .background(MaterialTheme.colorScheme.surface)
-            .border(
-                width = Spacing.cardBorderWidth,
-                color = MaterialTheme.colorScheme.outline,
-                shape = MaterialTheme.shapes.large
-            )
-            .padding(Spacing.lg)
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) {
         Row(
+            modifier = Modifier.padding(Spacing.standard),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Spacing.md)
+            horizontalArrangement = Arrangement.spacedBy(Spacing.standard)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.CheckCircle,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(Spacing.iconSizeMedium)
-                )
-            }
+            Icon(
+                imageVector = Icons.Outlined.CheckCircle,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "ALL CAUGHT UP",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary
                 )
 
-                Spacer(modifier = Modifier.height(Spacing.xxs))
+                Spacer(modifier = Modifier.height(Spacing.base))
 
                 Text(
-                    text = "$totalCount Active Memory Prompts",
+                    text = "$totalCount Memory Items Active",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -521,51 +287,36 @@ private fun ContinueIngestingCard(
     pendingCount: Int,
     onContinueIngest: () -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.large)
-            .background(MaterialTheme.colorScheme.surface)
-            .border(
-                width = Spacing.cardBorderWidth,
-                color = MaterialTheme.colorScheme.outline,
-                shape = MaterialTheme.shapes.large
-            )
-            .padding(Spacing.md)
-            .pressScaleEffect(onClick = onContinueIngest)
+    AppCard(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onContinueIngest,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(Spacing.standard),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.standard),
                 modifier = Modifier.weight(1f)
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(MaterialTheme.shapes.small)
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Description,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.size(Spacing.iconSizeMedium)
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Outlined.Description,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
 
                 Column {
                     Text(
                         text = "UNFINISHED DOCUMENTS",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Spacer(modifier = Modifier.height(Spacing.xxs))
+                    Spacer(modifier = Modifier.height(Spacing.base))
                     Text(
                         text = "$pendingCount Pending Documents",
                         style = MaterialTheme.typography.titleMedium,
@@ -577,8 +328,7 @@ private fun ContinueIngestingCard(
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
                 contentDescription = "Resume Ingestion",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(Spacing.iconSizeSmall)
+                tint = MaterialTheme.colorScheme.primary
             )
         }
     }

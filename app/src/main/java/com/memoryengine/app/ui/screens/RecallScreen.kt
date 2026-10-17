@@ -3,7 +3,6 @@ package com.memoryengine.app.ui.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,22 +13,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AutoAwesome
-import androidx.compose.material.icons.outlined.Visibility
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,12 +35,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.memoryengine.app.domain.scheduler.Rating
+import com.memoryengine.app.ui.components.AppCard
 import com.memoryengine.app.ui.components.ContextualHelpBottomSheet
 import com.memoryengine.app.ui.components.ContextualHelpIcon
+import com.memoryengine.app.ui.components.EmptyState
+import com.memoryengine.app.ui.components.PrimaryButton
 import com.memoryengine.app.ui.components.RecallRatingBar
-import com.memoryengine.app.ui.components.pressScaleEffect
+import com.memoryengine.app.ui.components.StatusChip
 import com.memoryengine.app.ui.theme.Spacing
 
 data class RecallUiState(
@@ -65,9 +60,28 @@ fun RecallScreen(
     uiState: RecallUiState,
     onRevealAnswer: () -> Unit,
     onRatingSelected: (Rating) -> Unit,
+    onBackToToday: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     var showHelpSheet by remember { mutableStateOf(false) }
+
+    if (uiState.totalCards == 0) {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(Spacing.screenPadding),
+            contentAlignment = Alignment.Center
+        ) {
+            EmptyState(
+                title = "No Due Prompts",
+                message = "You are all caught up! No active recall prompts are due right now.",
+                actionLabel = "Return Today",
+                onActionClick = { onBackToToday?.invoke() }
+            )
+        }
+        return
+    }
 
     val progress = if (uiState.totalCards > 0) {
         uiState.currentCardIndex.toFloat() / uiState.totalCards.toFloat()
@@ -83,7 +97,7 @@ fun RecallScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(Spacing.lg),
+                .padding(Spacing.screenPadding),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             // Top Section: Linear progress indicator & Card counter header
@@ -97,29 +111,21 @@ fun RecallScreen(
                         .height(4.dp)
                         .clip(CircleShape),
                     color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    trackColor = MaterialTheme.colorScheme.surfaceContainerHigh
                 )
 
-                Spacer(modifier = Modifier.height(Spacing.md))
+                Spacer(modifier = Modifier.height(Spacing.standard))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Surface(
-                        shape = RoundedCornerShape(16.dp),
-                        color = MaterialTheme.colorScheme.surface,
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
-                    ) {
-                        Text(
-                            text = "${uiState.currentCardIndex} / ${uiState.totalCards}",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                        )
-                    }
+                    StatusChip(
+                        text = "${uiState.currentCardIndex} / ${uiState.totalCards}",
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        contentColor = MaterialTheme.colorScheme.primary
+                    )
 
                     ContextualHelpIcon(
                         contentDescription = "Active Recall Help",
@@ -128,7 +134,7 @@ fun RecallScreen(
                 }
             }
 
-            // Center Section: Question, Answer & Distinctive Association
+            // Center Section: Question, Answer & Association
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -144,19 +150,18 @@ fun RecallScreen(
                 ) {
                     Text(
                         text = "QUESTION",
-                        style = MaterialTheme.typography.labelSmall,
-                        letterSpacing = 1.5.sp,
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
-                    Spacer(modifier = Modifier.height(Spacing.sm))
+                    Spacer(modifier = Modifier.height(Spacing.compact))
 
                     Text(
                         text = uiState.question,
-                        style = MaterialTheme.typography.headlineMedium,
+                        style = MaterialTheme.typography.headlineLarge,
                         textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.padding(horizontal = Spacing.sm)
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(horizontal = Spacing.compact)
                     )
 
                     AnimatedVisibility(
@@ -166,29 +171,22 @@ fun RecallScreen(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = Spacing.xl),
+                                .padding(top = Spacing.major),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            // Correct Answer Card
-                            Card(
+                            // Answer Card
+                            AppCard(
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = MaterialTheme.shapes.medium,
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface
-                                ),
-                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                                containerColor = MaterialTheme.colorScheme.surfaceContainer
                             ) {
-                                Column(
-                                    modifier = Modifier.padding(Spacing.md)
-                                ) {
+                                Column(modifier = Modifier.padding(Spacing.standard)) {
                                     Text(
                                         text = "ANSWER",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        letterSpacing = 1.5.sp,
-                                        color = MaterialTheme.colorScheme.primary
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.Bold
                                     )
-                                    Spacer(modifier = Modifier.height(Spacing.xs))
+                                    Spacer(modifier = Modifier.height(Spacing.base))
                                     Text(
                                         text = uiState.answer,
                                         style = MaterialTheme.typography.titleLarge,
@@ -197,43 +195,30 @@ fun RecallScreen(
                                 }
                             }
 
-                            // AI-Generated Distinctive Association Card
+                            // Association Card
                             if (!uiState.association.isNullOrBlank()) {
-                                Spacer(modifier = Modifier.height(Spacing.md))
+                                Spacer(modifier = Modifier.height(Spacing.standard))
 
-                                Card(
+                                AppCard(
                                     modifier = Modifier.fillMaxWidth(),
-                                    shape = MaterialTheme.shapes.medium,
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                                    ),
-                                    border = BorderStroke(
-                                        1.dp,
-                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
-                                    ),
-                                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    borderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
                                 ) {
-                                    Column(
-                                        modifier = Modifier.padding(Spacing.md)
-                                    ) {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
+                                    Column(modifier = Modifier.padding(Spacing.standard)) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
                                             Icon(
                                                 imageVector = Icons.Outlined.AutoAwesome,
                                                 contentDescription = null,
-                                                tint = MaterialTheme.colorScheme.primary,
-                                                modifier = Modifier.size(Spacing.iconSizeSmall)
+                                                tint = MaterialTheme.colorScheme.primary
                                             )
-                                            Spacer(modifier = Modifier.width(Spacing.xs))
+                                            Spacer(modifier = Modifier.width(Spacing.compact))
                                             Text(
                                                 text = "DISTINCTIVE ASSOCIATION",
-                                                style = MaterialTheme.typography.labelSmall,
-                                                letterSpacing = 1.5.sp,
+                                                style = MaterialTheme.typography.labelMedium,
                                                 color = MaterialTheme.colorScheme.primary
                                             )
                                         }
-                                        Spacer(modifier = Modifier.height(Spacing.xs))
+                                        Spacer(modifier = Modifier.height(Spacing.base))
                                         Text(
                                             text = uiState.association,
                                             style = MaterialTheme.typography.bodyLarge,
@@ -247,39 +232,15 @@ fun RecallScreen(
                 }
             }
 
-            // Bottom Section: Reveal button or Answer rating bar
+            // Bottom Section: Controls
             Box(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 if (!uiState.isAnswerRevealed) {
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .pressScaleEffect(onClick = onRevealAnswer),
-                        shape = MaterialTheme.shapes.medium,
-                        color = MaterialTheme.colorScheme.primary,
-                        shadowElevation = 0.dp
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(vertical = 16.dp),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Visibility,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.size(Spacing.iconSizeMedium)
-                            )
-                            Spacer(modifier = Modifier.width(Spacing.sm))
-                            Text(
-                                text = "Reveal Answer",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
-                    }
+                    PrimaryButton(
+                        text = "Reveal Answer",
+                        onClick = onRevealAnswer
+                    )
                 } else {
                     RecallRatingBar(
                         onRatingSelected = onRatingSelected
